@@ -1,99 +1,67 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { Card, Button, Badge } from "react-bootstrap";
+import { Container, Row, Col, Card, Button, Badge } from "react-bootstrap";
 
 const star = "⭐️";
 
-function BookCard({ bookData }) {
+function BookCard({ bookData, onUpdate, onRemove }) {
   const [book, setBook] = useState(bookData);
-  const [isExpanded, setIsExpanded] = useState(false);
 
-  useEffect(() => {
-    setBook(bookData);
-  }, [bookData]);
-
-  const getStatusVariant = (status) => {
-    switch (status) {
-      case "Completed":
-        return "success";
-      case "Reading":
-        return "primary";
-      default:
-        return "warning";
-    }
+  const removeBook = (id) => {
+    console.log(`${book.title} Deleted`);
+    onRemove(id);
+  };
+  const editTitle = (newTitle) => {
+    console.log(`Title changed to ${newTitle}`);
+    setBook({ ...book, newTitle });
+    onUpdate({ ...bookData, title: newTitle });
   };
 
   return (
-    <Card className="mb-4 shadow">
-      <div
-        onClick={() => setIsExpanded(!isExpanded)}
-        style={{ cursor: "pointer" }}
-      >
-        <div className="d-md-flex">
-          {/* Book Cover */}
-          <div style={{ flex: "0 0 25%" }}>
+    <div className="col-12 col-md-6 col-lg-4 mb-3">
+      {" "}
+      {/* Responsive columns */}
+      <Card style={{ maxWidth: "540px", height: "300px" }} className="mx-auto">
+        {" "}
+        {/* Center each card */}
+        <Row className="g-0 mb-3">
+          <Col md={4}>
             <Card.Img
               src={book.coverUrl}
-              alt={book.title}
-              style={{
-                height: "200px",
-                objectFit: "cover",
-                borderTopRightRadius: 0,
-              }}
+              className="img-fluid rounded-start"
+              alt={book.title || "Book cover"}
             />
-          </div>
-
-          {/* Basic Info */}
-          <Card.Body style={{ flex: "1" }}>
-            <Card.Title as="h3" className="mb-2">
-              {book.title}
-            </Card.Title>
-            <Card.Text className="text-muted mb-1">by {book.author}</Card.Text>
-            <Card.Text className="text-muted mb-2">{book.genre}</Card.Text>
-
-            <Badge
-              bg={getStatusVariant(book.status)}
-              className="px-3 py-2 rounded-pill"
+          </Col>
+          <Col md={8}>
+            <Card.Body>
+              <Card.Title>{book.title}</Card.Title>
+              <Card.Text className="text-muted">by {book.author}</Card.Text>
+              <Card.Text>{star.repeat(book.rating)}</Card.Text>
+              <Card.Text className="text-muted">{book.genre}</Card.Text>
+            </Card.Body>
+          </Col>
+        </Row>
+        <Row className="pb-0">
+          <div className="d-flex justify-content-around">
+            <Button
+              onClick={() => {
+                editTitle("yolo2");
+              }}
             >
-              {book.status}
-            </Badge>
-          </Card.Body>
-        </div>
-      </div>
-
-      {/* Expanded Content */}
-      {isExpanded && (
-        <Card.Body className="border-top">
-          <div className="row mb-4">
-            <div className="col-6">
-              <small className="text-muted d-block">Date Added</small>
-              <span>{book.dateAdded}</span>
-            </div>
-            <div className="col-6">
-              <small className="text-muted d-block">Date Completed</small>
-              <span>{book.dateCompleted || "N/A"}</span>
-            </div>
+              Edit
+            </Button>
+            <Button
+              onClick={() => {
+                removeBook(book.id);
+              }}
+              variant="danger"
+            >
+              Remove
+            </Button>
           </div>
-
-          <div className="mb-4">
-            <small className="text-muted d-block mb-1">Rating</small>
-            <span className="fs-5">{star.repeat(book.rating)}</span>
-          </div>
-
-          {book.notes && (
-            <div className="mb-4">
-              <small className="text-muted d-block mb-1">Notes</small>
-              <p className="fst-italic">{book.notes}</p>
-            </div>
-          )}
-
-          <div className="d-flex gap-2">
-            <Button variant="primary">Edit</Button>
-            <Button variant="danger">Remove</Button>
-          </div>
-        </Card.Body>
-      )}
-    </Card>
+        </Row>
+      </Card>
+    </div>
   );
 }
 
@@ -110,6 +78,8 @@ BookCard.propTypes = {
     notes: PropTypes.string,
     coverUrl: PropTypes.string,
   }).isRequired,
+  onUpdate: PropTypes.func.isRequired,
+  onRemove: PropTypes.func.isRequired,
 };
 
 export default BookCard;

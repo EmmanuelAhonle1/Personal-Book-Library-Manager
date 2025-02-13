@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { initialBooks, createBook } from "../data/initialBooks";
 import { Container, Row, Col, Card, Button, Badge } from "react-bootstrap";
-
+import BookCard from "./BookCard";
 // Define addBook outside the component
 const createNewBook = (
   title,
@@ -35,52 +35,37 @@ function BookList() {
     setBookList(initialBooks);
   }, []);
 
-  const addBook = (...args) => {
-    const newBook = createNewBook(...args);
-    setBookList([...bookList, newBook]);
+  // const addBook = (...args) => {
+  //   const newBook = createNewBook(...args);
+  //   setBookList([...bookList, newBook]);
+  // };
+  const updateBook = (updatedBook) => {
+    setBookList(
+      bookList.map((book) => (book.id === updatedBook.id ? updatedBook : book))
+    );
+    console.log("we hit it");
   };
 
-  const getStatusVariant = (status) => {
-    switch (status?.toLowerCase()) {
-      case "reading":
-        return "primary";
-      case "completed":
-        return "success";
-      case "want-to-read":
-        return "secondary";
-      default:
-        return "info";
-    }
+  const removeBook = (bookId) => {
+    setBookList(bookList.filter((book) => book.id !== bookId));
   };
 
   return (
-    <Container>
-      <h2>Book List</h2>
-      {bookList?.map((book) => (
-        <Card key={book.id} className="mb-3" style={{ maxWidth: "540px" }}>
-          <Row className="g-0">
-            <Col md={4}>
-              <Card.Img
-                src={book.coverUrl}
-                className="img-fluid rounded-start"
-                alt={book.title || "Book cover"}
-              />
-            </Col>
-            <Col md={8}>
-              <Card.Body>
-                <Card.Title>{book.title}</Card.Title>
-                <Card.Text>{book.description}</Card.Text>
-                <Card.Text>
-                  <small className="text-muted">Last updated 3 mins ago</small>
-                </Card.Text>
-              </Card.Body>
-            </Col>
-          </Row>
-        </Card>
-      ))}
-    </Container>
+    <div className="container">
+      <h2 className="text-center mb-4">Book List</h2> {/* Center the heading */}
+      <div className="d-flex flex-row justify-content-center">
+        {bookList?.map((book) => (
+          <BookCard
+            key={book.id}
+            bookData={book}
+            onUpdate={updateBook}
+            onRemove={removeBook}
+          />
+        ))}
+      </div>
+    </div>
   );
 }
 
 export default BookList;
-export { createNewBook };
+// export { createNewBook };
