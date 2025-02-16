@@ -1,67 +1,129 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { Container, Row, Col, Card, Button, Badge } from "react-bootstrap";
-
+import { Row, Col, Card, Button } from "react-bootstrap";
+import BookModal from "./BookModal";
+import DeleteWarningModal from "./DeleteWarningModal";
 const star = "⭐️";
 
 function BookCard({ bookData, onUpdate, onRemove }) {
   const [book, setBook] = useState(bookData);
+  const [showBookDataModal, setShowBookDataModal] = useState(false);
+  const [showDeleteWarning, setShowDeleteWarning] = useState(false);
 
-  const removeBook = (id) => {
+  useEffect(() => {
+    setBook(bookData);
+  }, [bookData]);
+
+  const onShow = () => {
+    console.log("Modal opened");
+    setShowBookDataModal(true);
+  };
+
+  const onBookModalHide = () => {
+    console.log("Modal closed");
+    setShowBookDataModal(false);
+  };
+
+  const handleShowDeleteWarning = (e) => {
+    e.stopPropagation();
+    console.log("Delete Warning Shown");
+    setShowDeleteWarning(true);
+  };
+
+  const removeBook = (e, id) => {
+    // e.stopPropagation();
     console.log(`${book.title} Deleted`);
     onRemove(id);
   };
-  const editTitle = (newTitle) => {
+
+  const editCard = (e, newTitle) => {
+    e.stopPropagation();
     console.log(`Title changed to ${newTitle}`);
-    setBook({ ...book, newTitle });
-    onUpdate({ ...bookData, title: newTitle });
+    const updatedBook = { ...book, title: newTitle };
+    setBook(updatedBook);
+    onUpdate(updatedBook);
   };
 
   return (
-    <div className="col-12 col-md-6 col-lg-4 mb-3">
-      {" "}
-      {/* Responsive columns */}
-      <Card style={{ maxWidth: "540px", height: "300px" }} className="mx-auto">
-        {" "}
-        {/* Center each card */}
-        <Row className="g-0 mb-3">
-          <Col md={4}>
-            <Card.Img
-              src={book.coverUrl}
-              className="img-fluid rounded-start"
-              alt={book.title || "Book cover"}
-            />
+    <>
+      <BookModal
+        showModal={showBookDataModal}
+        onHide={onBookModalHide}
+        bookData={book}
+      />
+      <DeleteWarningModal
+        bookData={book}
+        removeBook={removeBook}
+        showDeleteWarning={showDeleteWarning}
+        setShowDeleteWarning={setShowDeleteWarning}
+      />
+      <Card
+        className="mx-auto d-flex flex-column h-100"
+        style={{ cursor: "pointer" }}
+        onClick={onShow}
+      >
+        <Row className="g-0">
+          <Col xs={12} md={4} className="p-2">
+            <div className="d-flex align-items-center">
+              <Card.Img
+                src={book.coverUrl}
+                className="img-fluid rounded-start w-100"
+                style={{
+                  objectFit: "contain",
+                  objectPosition: "center",
+                  height: "200px",
+                  "@media (min-width: 768px)": {
+                    height: "250px",
+                  },
+                }}
+                alt={book.title || "Book cover"}
+              />
+            </div>
           </Col>
-          <Col md={8}>
+          <Col xs={12} md={8}>
             <Card.Body>
-              <Card.Title>{book.title}</Card.Title>
+              <Card.Title className="px-0">{book.title}</Card.Title>
               <Card.Text className="text-muted">by {book.author}</Card.Text>
-              <Card.Text>{star.repeat(book.rating)}</Card.Text>
+              <Card.Text
+                style={{
+                  letterSpacing: "-3px",
+                }}
+              >
+                {[...Array(5)].map((_, index) => (
+                  <span
+                    key={index}
+                    style={{
+                      color: index < book.rating ? "inherit" : "#e0e0e0",
+                      opacity: index < book.rating ? 1 : 0.25,
+                    }}
+                  >
+                    {star}
+                  </span>
+                ))}
+              </Card.Text>
               <Card.Text className="text-muted">{book.genre}</Card.Text>
             </Card.Body>
           </Col>
         </Row>
-        <Row className="pb-0">
-          <div className="d-flex justify-content-around">
+        <Row className="p-2 mt-auto">
+          <Col className="d-flex gap-2 justify-content-between">
             <Button
-              onClick={() => {
-                editTitle("yolo2");
-              }}
+              onClick={(e) => editCard(e, "yolo2")}
+              className="flex-grow-1"
             >
               Edit
             </Button>
             <Button
-              onClick={() => {
-                removeBook(book.id);
-              }}
+              onClick={(e) => handleShowDeleteWarning(e)}
               variant="danger"
+              className="flex-grow-1"
             >
               Remove
             </Button>
-          </div>
+          </Col>
         </Row>
       </Card>
-    </div>
+    </>
   );
 }
 
@@ -80,6 +142,8 @@ BookCard.propTypes = {
   }).isRequired,
   onUpdate: PropTypes.func.isRequired,
   onRemove: PropTypes.func.isRequired,
+  showDeleteWarning: PropTypes.bool.isRequired,
+  setShowDeleteWarning: PropTypes.func.isRequired,
 };
 
 export default BookCard;

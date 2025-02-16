@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { initialBooks, createBook } from "../data/initialBooks";
 import { Container, Row, Col, Card, Button, Badge } from "react-bootstrap";
 import BookCard from "./BookCard";
+import AddCard from "./AddCard";
 // Define addBook outside the component
 const createNewBook = (
   title,
@@ -51,19 +52,23 @@ function BookList() {
   };
 
   return (
-    <div className="container">
-      <h2 className="text-center mb-4">Book List</h2> {/* Center the heading */}
-      <div className="d-flex flex-row justify-content-center">
+    <Container>
+      <h2 className="text-center mb-4">Book List</h2>
+      <Row className="g-3">
+        <Col xs={12} sm={6} md={4} lg={3}>
+          <AddCard />
+        </Col>
         {bookList?.map((book) => (
-          <BookCard
-            key={book.id}
-            bookData={book}
-            onUpdate={updateBook}
-            onRemove={removeBook}
-          />
+          <Col xs={12} sm={6} md={4} lg={3} key={book.id}>
+            <BookCard
+              bookData={book}
+              onUpdate={updateBook}
+              onRemove={removeBook}
+            />
+          </Col>
         ))}
-      </div>
-    </div>
+      </Row>
+    </Container>
   );
 }
 
